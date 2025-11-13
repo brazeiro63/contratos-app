@@ -20,18 +20,21 @@ export const contractSchema = z.object({
     cepProprietario: z.string().regex(/^\d{5}-\d{3}$/, "CEP inválido. Use o formato XXXXX-XXX.").min(9, "CEP inválido. Use o formato XXXXX-XXX.")
   }),
   representanteAdministradora: z.object({
-    nomeRepresentanteAdministradora: z.string().min(1, "Nome do representante é obrigatório.").default("PAULO RICARDO BRAZEIRO DE CARVALHO"),
-    nacionalidadeRepresentanteAdministradora: z.string().min(1, "Nacionalidade do representante é obrigatória.").default("Brasileiro"),
+    nomeRepresentanteAdministradora: z.string().min(1, "Nome do representante é obrigatório.").default("MARIA MARGARIDA DOS SANTOS"),
+    nacionalidadeRepresentanteAdministradora: z.string().min(1, "Nacionalidade do representante é obrigatória.").default("Brasileira"),
     estadoCivilRepresentanteAdministradora: z.enum(["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)", "União Estável"], { message: "Estado civil do representante inválido." }).default("Casado(a)"),
-    profissaoRepresentanteAdministradora: z.string().min(1, "Profissão do representante é obrigatória.").default("Empresário"),
-    rgRepresentanteAdministradora: z.string().min(1, "RG do representante é obrigatório.").default("2036424 SSP-DF"),
-    cpfRepresentanteAdministradora: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "CPF do representante inválido. Use o formato XXX.XXX.XXX-XX.").min(14, "CPF do representante inválido. Use o formato XXX.XXX.XXX-XX.").default("388.413.980-00")
+    profissaoRepresentanteAdministradora: z.string().min(1, "Profissão do representante é obrigatória.").default("Empresária"),
+    rgRepresentanteAdministradora: z.string().min(1, "RG do representante é obrigatório.").default("427358 SSP/DF"),
+    cpfRepresentanteAdministradora: z.string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, "CPF do representante inválido. Use o formato XXX.XXX.XXX-XX.").min(14, "CPF do representante inválido. Use o formato XXX.XXX.XXX-XX.").default("214.325.201-30")
   }),
   imovel: z.object({
     enderecoCompletoImovel: z.string().min(1, "Endereço completo do imóvel é obrigatório."),
     cepImovel: z.string().regex(/^\d{5}-\d{3}$/, "CEP do imóvel inválido. Use o formato XXXXX-XXX.").min(9, "CEP do imóvel inválido. Use o formato XXXXX-XXX."),
     valorMinimoDiariaImovel: z.coerce.number().min(0, "O valor mínimo da diária deve ser um número positivo.")
   }),
+  opcoes: z.object({
+    administradoraPagaDespesas: z.boolean().default(false)
+  }).optional().default({ administradoraPagaDespesas: false }),
   assinatura: z.object({
     cidadeAssinatura: z.string().min(1, "Cidade de assinatura é obrigatória."),
     diaAssinatura: z.coerce.number().min(1, "Dia inválido.").max(31, "Dia inválido.").default(new Date().getDate()),

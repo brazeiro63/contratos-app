@@ -45,12 +45,12 @@ const ContractForm: React.FC = () => {
     resolver: zodResolver(contractSchema),
     defaultValues: {
       representanteAdministradora: {
-        nomeRepresentanteAdministradora: "PAULO RICARDO BRAZEIRO DE CARVALHO",
-        nacionalidadeRepresentanteAdministradora: "Brasileiro",
+        nomeRepresentanteAdministradora: "MARIA MARGARIDA DOS SANTOS",
+        nacionalidadeRepresentanteAdministradora: "Brasileira",
         estadoCivilRepresentanteAdministradora: "Casado(a)",
-        profissaoRepresentanteAdministradora: "Empresário",
-        rgRepresentanteAdministradora: "2036424 SSP-DF",
-        cpfRepresentanteAdministradora: "388.413.980-00"
+        profissaoRepresentanteAdministradora: "Empresária",
+        rgRepresentanteAdministradora: "427358 SSP/DF",
+        cpfRepresentanteAdministradora: "214.325.201-30"
       },
       assinatura: {
         cidadeAssinatura: "",
@@ -59,9 +59,12 @@ const ContractForm: React.FC = () => {
         anoAssinatura: new Date().getFullYear()
       },
       testemunhas: [
-        { nomeCompleto: "", cpf: "" },
+        { nomeCompleto: "PAULO RICARDO BRAZEIRO DE CARVALHO", cpf: "388.413.980-00" },
         { nomeCompleto: "", cpf: "" }
       ],
+      opcoes: {
+        administradoraPagaDespesas: false
+      },
       anexo1Descricao: "Lista detalhada de bens móveis, eletrodomésticos e utensílios que guarnecem o IMÓVEL, a ser fornecida pelo PROPRIETÁRIO e aprovada pela ADMINISTRADORA, e que constituirá parte integrante e indissociável deste Contrato, após sua devida assinatura.",
       foroEleito: "Brasília/DF"
     }
@@ -345,6 +348,24 @@ const ContractForm: React.FC = () => {
                 <span className="error-message">{errors.imovel.valorMinimoDiariaImovel.message}</span>
               )}
             </div>
+          </div>
+        </section>
+
+        <section className="section">
+          <h2>Opções de Administração</h2>
+
+          <div className="form-group">
+            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                {...register("opcoes.administradoraPagaDespesas")}
+                style={{ cursor: 'pointer' }}
+              />
+              <span>A Administradora realizará o pagamento de despesas (condomínio, impostos, água, luz, gás, etc.)</span>
+            </label>
+            <p style={{ marginTop: '8px', fontSize: '0.9em', color: '#666', marginLeft: '30px' }}>
+              Quando marcado, a Administradora fica autorizada a pagar as despesas do imóvel e descontá-las do valor repassado ao proprietário.
+            </p>
           </div>
         </section>
 

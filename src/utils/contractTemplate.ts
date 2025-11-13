@@ -13,7 +13,7 @@ export const generateContractPDF = (data: ContractData): void => {
         text: 'CONTRATO DE ADMINISTRAÇÃO DE IMÓVEL PARA LOCAÇÃO POR TEMPORADA',
         style: 'header',
         alignment: 'center',
-        margin: [0, 0, 0, 20]
+        margin: [0, 0, 0, 40]
       },
       {
         text: 'Pelo presente instrumento particular, de um lado:',
@@ -122,7 +122,9 @@ export const generateContractPDF = (data: ContractData): void => {
         margin: [0, 0, 0, 8]
       },
       {
-        text: '4.7. A ADMINISTRADORA poderá realizar o pagamento das cotas condominiais, inclusive taxas extras, dos impostos e das taxas que incidam sobre o IMÓVEL, inclusive pelas despesas de água, energia elétrica, gás etc., tão logo receba os respectivos avisos de lançamento, fazendo o desconto correspondente, mediante prestação de contas, quando do repasse da remuneração que cabe ao(à) PROPRIETÁRIO(A).',
+        text: data.opcoes?.administradoraPagaDespesas
+          ? '4.7. A ADMINISTRADORA poderá realizar o pagamento das cotas condominiais, inclusive taxas extras, dos impostos e das taxas que incidam sobre o IMÓVEL, inclusive pelas despesas de água, energia elétrica, gás etc., tão logo receba os respectivos avisos de lançamento, fazendo o desconto correspondente, mediante prestação de contas, quando do repasse da remuneração que cabe ao(à) PROPRIETÁRIO(A).'
+          : '4.7. A ADMINISTRADORA NÃO realizará o pagamento das cotas condominiais, impostos, taxas ou despesas que incidam sobre o IMÓVEL (água, energia elétrica, gás, etc.), sendo de exclusiva responsabilidade do(a) PROPRIETÁRIO(A) a quitação de tais encargos.',
         margin: [0, 0, 0, 8]
       },
       {
@@ -135,7 +137,9 @@ export const generateContractPDF = (data: ContractData): void => {
         margin: [0, 0, 0, 10]
       },
       {
-        text: '5.1. É de responsabilidade do(a) PROPRIETÁRIO(A), a qualquer tempo, o pagamento das cotas condominiais, inclusive taxas extras, dos impostos e das taxas que incidam sobre o IMÓVEL, inclusive pelas despesas de água, energia elétrica, gás etc.',
+        text: data.opcoes?.administradoraPagaDespesas
+          ? '5.1. O(A) PROPRIETÁRIO(A) autoriza expressamente a ADMINISTRADORA a realizar o pagamento das cotas condominiais, inclusive taxas extras, dos impostos e das taxas que incidam sobre o IMÓVEL, inclusive pelas despesas de água, energia elétrica, gás etc., ficando ciente de que tais valores serão descontados do repasse mensal, mediante prestação de contas detalhada.'
+          : '5.1. É de responsabilidade do(a) PROPRIETÁRIO(A), a qualquer tempo, o pagamento das cotas condominiais, inclusive taxas extras, dos impostos e das taxas que incidam sobre o IMÓVEL, inclusive pelas despesas de água, energia elétrica, gás etc.',
         margin: [0, 0, 0, 8]
       },
       {
@@ -151,7 +155,6 @@ export const generateContractPDF = (data: ContractData): void => {
         margin: [0, 0, 0, 15]
       },
       {
-        pageBreak: 'before',
         text: 'CLÁUSULA SEXTA – DO CÁLCULO DAS REMUNERAÇÕES E REPASSES',
         style: 'clauseHeader',
         margin: [0, 0, 0, 10]
@@ -366,7 +369,7 @@ export const generateContractPDF = (data: ContractData): void => {
       alignment: 'justify',
       lineHeight: 1.3
     },
-    pageMargins: [40, 40, 40, 40],
+    pageMargins: [40, 60, 40, 60],
     footer: function(currentPage, pageCount) {
       return {
         text: `Página ${currentPage} de ${pageCount}`,
