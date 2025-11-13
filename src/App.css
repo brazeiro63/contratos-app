@@ -16,12 +16,13 @@ body {
 }
 
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 40px;
   background-color: white;
-  min-height: 100vh;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  min-height: calc(100vh - 80px);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
 }
 
 .header {
@@ -189,9 +190,9 @@ body {
 
 @media (max-width: 768px) {
   .container {
-    margin: 0;
-    padding: 15px;
-    box-shadow: none;
+    margin: 20px;
+    padding: 25px;
+    border-radius: 8px;
   }
 
   .header h1 {
@@ -205,6 +206,10 @@ body {
 
   .section {
     padding: 20px;
+  }
+
+  .back-button {
+    margin: 15px auto 0;
   }
 }
 
@@ -328,10 +333,12 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  margin: 20px;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  width: fit-content;
+  max-width: 900px;
+  margin: 20px auto 0;
 }
 
 .back-button:hover {
