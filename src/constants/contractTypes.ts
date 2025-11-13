@@ -20,7 +20,7 @@ export const CONTRACT_TYPES: ContractType[] = [
     title: 'Contrato de Locação por Temporada',
     description: 'Para aluguel temporário de imóveis residenciais',
     path: '/contrato/locacao',
-    available: false
+    available: true
   },
   {
     id: 'venda',

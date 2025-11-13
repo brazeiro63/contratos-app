@@ -133,12 +133,12 @@ export const generateRentalContractPDF = (data: RentalContractData): void => {
       // Ocupantes
       ...(data.ocupantes && data.ocupantes.length > 0 ? data.ocupantes.map(ocupante => ({
         text: `Nome: ${ocupante.nome} - Identidade: ${ocupante.identidade}`,
-        margin: [20, 2, 0, 2],
+        margin: [20, 2, 0, 2] as [number, number, number, number],
         fontSize: 10
       })) : []),
       {
         text: '',
-        margin: [0, 0, 0, 10]
+        margin: [0, 0, 0, 10] as [number, number, number, number]
       },
       // Cláusula 5º
       {
