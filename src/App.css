@@ -222,3 +222,157 @@ body {
     font-size: 14px;
   }
 }
+
+/* Estilos para Home */
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.home-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.home-header h1 {
+  color: #2c5282;
+  font-size: 42px;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.home-header .subtitle {
+  color: #4a5568;
+  font-size: 20px;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+.home-header .description {
+  color: #718096;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+/* Grid de Contratos */
+.contract-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Card de Contrato */
+.contract-card {
+  background-color: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+}
+
+.contract-card.available {
+  cursor: pointer;
+}
+
+.contract-card.available:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(49, 130, 206, 0.2);
+  border-color: #3182ce;
+}
+
+.contract-card.unavailable {
+  opacity: 0.6;
+  background-color: #f7fafc;
+}
+
+.contract-card h3 {
+  color: #2c5282;
+  font-size: 22px;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.contract-card p {
+  color: #4a5568;
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.contract-card .coming-soon {
+  display: inline-block;
+  background-color: #ffd700;
+  color: #744210;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* Botão Voltar */
+.back-button {
+  background-color: #e2e8f0;
+  color: #2d3748;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-button:hover {
+  background-color: #cbd5e0;
+  transform: translateX(-3px);
+}
+
+.back-button:active {
+  transform: translateX(0);
+}
+
+/* Responsividade para Home */
+@media (max-width: 768px) {
+  .home-header h1 {
+    font-size: 32px;
+  }
+
+  .home-header .subtitle {
+    font-size: 18px;
+  }
+
+  .contract-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-header h1 {
+    font-size: 28px;
+  }
+
+  .home-header .subtitle {
+    font-size: 16px;
+  }
+
+  .contract-card {
+    padding: 25px;
+  }
+
+  .contract-card h3 {
+    font-size: 20px;
+  }
+}
