@@ -45,3 +45,6 @@ next-env.d.ts
 *.njsproj
 *.sln
 *.sw?
+# Deploy files
+*.zip
+out/
