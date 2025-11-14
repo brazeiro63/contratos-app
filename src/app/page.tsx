@@ -1,10 +1,12 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import ContractCard from '../components/shared/ContractCard';
-import { CONTRACT_TYPES } from '../constants/contractTypes';
+'use client';
 
-const Home: React.FC = () => {
-  const navigate = useNavigate();
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import ContractCard from '@/components/shared/ContractCard';
+import { CONTRACT_TYPES } from '@/constants/contractTypes';
+
+export default function Home() {
+  const router = useRouter();
 
   return (
     <div className="home-container">
@@ -21,12 +23,10 @@ const Home: React.FC = () => {
             title={contract.title}
             description={contract.description}
             available={contract.available}
-            onClick={() => navigate(contract.path)}
+            onClick={() => router.push(contract.path)}
           />
         ))}
       </div>
     </div>
   );
-};
-
-export default Home;
+}

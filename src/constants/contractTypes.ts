@@ -12,14 +12,14 @@ export const CONTRACT_TYPES: ContractType[] = [
     id: 'administracao',
     title: 'Contrato de Administração de Imóvel',
     description: 'Para gestão de imóveis destinados a locação por temporada',
-    path: '/contrato/administracao',
+    path: '/property-management',
     available: true
   },
   {
     id: 'locacao',
     title: 'Contrato de Locação por Temporada',
     description: 'Para aluguel temporário de imóveis residenciais',
-    path: '/contrato/locacao',
+    path: '/rental-contract',
     available: true
   },
   {

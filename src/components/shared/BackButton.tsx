@@ -1,12 +1,14 @@
+'use client';
+
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/navigation';
 
 const BackButton: React.FC = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <button
-      onClick={() => navigate('/')}
+      onClick={() => router.push('/')}
       className="back-button"
       type="button"
     >
