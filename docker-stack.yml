@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  crm-frontend:
+    image: crm-frontend:latest
+    networks:
+      - CDMNet
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        # HTTP Router (para Let's Encrypt challenge)
+        - "traefik.http.routers.crm-frontend-http.rule=Host(`crm.casasdemargarida.com`)"
+        - "traefik.http.routers.crm-frontend-http.entrypoints=web"
+        # HTTPS Router
+        - "traefik.http.routers.crm-frontend.rule=Host(`crm.casasdemargarida.com`)"
+        - "traefik.http.routers.crm-frontend.entrypoints=websecure"
+        - "traefik.http.routers.crm-frontend.tls=true"
+        - "traefik.http.routers.crm-frontend.tls.certresolver=letsencryptresolver"
+        # Service
+        - "traefik.http.services.crm-frontend.loadbalancer.server.port=3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://api-crm.casasdemargarida.com/api
+
+networks:
+  CDMNet:
+    external: true

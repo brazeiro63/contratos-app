@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:static": "rm -rf src/app/crm && next build && git restore src/app/crm",
+    "build:docker": "next build",
     "start": "next start",
     "lint": "eslint"
   },

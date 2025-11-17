@@ -1,0 +1,65 @@
+'use client';
+
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { useCliente, useClienteMutations } from '@/hooks/crm/useClientes';
+import ClienteForm from '@/components/crm/ClienteForm';
+import type { UpdateClienteDto } from '@/types/crm/cliente';
+
+interface EditClienteClientProps {
+  id: string;
+}
+
+export default function EditClienteClient({ id }: EditClienteClientProps) {
+  const router = useRouter();
+  const { cliente, loading: loadingCliente, error } = useCliente(id);
+  const { updateCliente, loading: updating } = useClienteMutations();
+
+  const handleSubmit = async (data: UpdateClienteDto) => {
+    try {
+      await updateCliente(id, data);
+      alert('Cliente atualizado com sucesso!');
+      router.push(`/crm/clientes/${id}`);
+    } catch (error: any) {
+      alert(`Erro ao atualizar cliente: ${error.message}`);
+    }
+  };
+
+  if (loadingCliente) {
+    return (
+      <div className="loading-container">
+        <p>Carregando dados do cliente...</p>
+      </div>
+    );
+  }
+
+  if (error || !cliente) {
+    return (
+      <div className="error-container">
+        <h2>Erro ao carregar cliente</h2>
+        <p>{error?.message || 'Cliente não encontrado'}</p>
+        <button className="btn-primary" onClick={() => router.push('/crm/clientes')}>
+          Voltar para Clientes
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-container">
+      <div className="page-header">
+        <h1>Editar Cliente</h1>
+        <p className="page-subtitle">Atualize as informações do cliente</p>
+      </div>
+
+      <div className="form-container">
+        <ClienteForm
+          initialData={cliente}
+          onSubmit={handleSubmit}
+          onCancel={() => router.push(`/crm/clientes/${id}`)}
+          loading={updating}
+        />
+      </div>
+    </div>
+  );
+}
