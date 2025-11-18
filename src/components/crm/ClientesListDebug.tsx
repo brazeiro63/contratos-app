@@ -10,7 +10,7 @@ export default function ClientesListDebug() {
     const fetchData = async () => {
       try {
         setStatus('Fazendo requisição...');
-        const url = 'https://api-crm.casasdemargarida.com/api/clientes?page=1&limit=5';
+        const url = 'https://api-crm.casasdemargarida.com.br/api/clientes?page=1&limit=5';
 
         const response = await fetch(url);
         setStatus(`Response status: ${response.status}`);

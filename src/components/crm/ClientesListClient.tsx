@@ -1,72 +1,173 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { clientesApi, PaginationMetadata } from '@/lib/api/clientes';
-
-interface ClienteStays {
-  id: string;
-  nome: string;
-  email?: string;
-  tipo: string;
-  isUsuario: boolean;
-  dataCadastro: string;
-}
+import { useState, useEffect, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import ClientesFilters from '@/components/crm/ClientesFilters';
+import ClientesTable from '@/components/crm/ClientesTable';
+import ClienteForm from '@/components/crm/ClienteForm';
+import { clientesApi } from '@/lib/api/clientes';
+import type {
+  Cliente,
+  ClientesResponse,
+  ClienteFilters,
+  CreateClienteDto,
+} from '@/types/crm/cliente';
 
 export default function ClientesListClient() {
-  const [clientes, setClientes] = useState<ClienteStays[]>([]);
+  const router = useRouter();
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [meta, setMeta] = useState<ClientesResponse['meta'] | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filters, setFilters] = useState<ClienteFilters>({ take: 10, skip: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [paginationMeta, setPaginationMeta] = useState<PaginationMetadata>({
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 0,
-    hasNextPage: false,
-    hasPrevPage: false,
-  });
-
-  useEffect(() => {
-    console.log('[ClientesListClient] useEffect executado, page:', page, 'limit:', limit);
-    loadClientes();
-  }, [page, limit]);
+  const [showForm, setShowForm] = useState(false);
+  const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
+  const [formLoading, setFormLoading] = useState(false);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const loadClientes = async () => {
     try {
-      console.log('[ClientesListClient] Iniciando carregamento...');
       setLoading(true);
       setError(null);
-      const response = await clientesApi.list({}, page, limit);
-      console.log('[ClientesListClient] Resposta recebida:', response);
+      const response = await clientesApi.list(filters);
       setClientes(response.data);
-      setPaginationMeta(response.pagination);
+      setMeta(response.meta);
     } catch (err) {
-      console.error('[ClientesListClient] Erro ao carregar clientes:', err);
-      const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar clientes';
-      setError(errorMessage);
+      setError(err instanceof Error ? err.message : 'Erro ao carregar clientes');
     } finally {
       setLoading(false);
-      console.log('[ClientesListClient] Carregamento finalizado');
     }
   };
 
-  const filteredClientes = clientes.filter(cliente =>
-    cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cliente.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  useEffect(() => {
+    loadClientes();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters.skip, filters.take, filters.tag, filters.origem]);
+
+  const takeValue = meta?.take ?? filters.take ?? 10;
+  const currentPage = meta ? Math.floor(meta.skip / takeValue) + 1 : 1;
+  const totalPages = meta ? Math.max(1, Math.ceil(meta.total / takeValue)) : 1;
+  const hasNextPage = meta ? meta.hasMore : false;
+  const hasPrevPage = currentPage > 1;
+
+  const filteredClientes = useMemo(() => {
+    if (!searchTerm) {
+      return clientes;
+    }
+    return clientes.filter(
+      (cliente) =>
+        cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        cliente.email.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [clientes, searchTerm]);
+
+  const handlePageChange = (page: number) => {
+    const take = filters.take ?? 10;
+    setFilters((prev) => ({
+      ...prev,
+      skip: (page - 1) * take,
+      take,
+    }));
+  };
+
+  const handlePageSizeChange = (take: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      take,
+      skip: 0,
+    }));
+  };
+
+  const handleFiltersChange = (partial: Partial<ClienteFilters>) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...partial,
+      skip: 0,
+    }));
+  };
+
+  const handleClearFilters = () => {
+    setFilters((prev) => ({
+      ...prev,
+      tag: undefined,
+      origem: undefined,
+      skip: 0,
+    }));
+  };
+
+  const openCreateForm = () => {
+    setEditingCliente(null);
+    setShowForm(true);
+  };
+
+  const openEditForm = (cliente: Cliente) => {
+    setEditingCliente(cliente);
+    setShowForm(true);
+  };
+
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingCliente(null);
+  };
+
+  const handleSubmit = async (data: CreateClienteDto) => {
+    setFormLoading(true);
+    try {
+      if (editingCliente) {
+        await clientesApi.update(editingCliente.id, data);
+        setFeedback('Cliente atualizado com sucesso!');
+      } else {
+        await clientesApi.create(data);
+        setFeedback('Cliente criado com sucesso!');
+      }
+      closeForm();
+      await loadClientes();
+    } catch (err) {
+      setFeedback(err instanceof Error ? err.message : 'Erro ao salvar cliente');
+    } finally {
+      setFormLoading(false);
+      setTimeout(() => setFeedback(null), 5000);
+    }
+  };
+
+  const handleDelete = async (cliente: Cliente) => {
+    if (!confirm(`Deseja realmente excluir o cliente ${cliente.nome}?`)) {
+      return;
+    }
+
+    try {
+      await clientesApi.delete(cliente.id);
+      setFeedback('Cliente excluído com sucesso!');
+      await loadClientes();
+    } catch (err) {
+      setFeedback(err instanceof Error ? err.message : 'Erro ao excluir cliente');
+    } finally {
+      setTimeout(() => setFeedback(null), 5000);
+    }
+  };
+
+  const initialFormData: CreateClienteDto | undefined = editingCliente
+    ? {
+        staysClientId: editingCliente.staysClientId,
+        nome: editingCliente.nome,
+        cpf: editingCliente.cpf,
+        email: editingCliente.email,
+        telefone: editingCliente.telefone,
+        tags: editingCliente.tags,
+        score: editingCliente.score,
+        preferencias: editingCliente.preferencias,
+        observacoes: editingCliente.observacoes,
+        origem: editingCliente.origem,
+      }
+    : undefined;
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center py-12">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Carregando clientes...</p>
-            </div>
-          </div>
+      <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto" />
+          <p className="mt-4 text-gray-600">Carregando clientes...</p>
         </div>
       </div>
     );
@@ -75,7 +176,7 @@ export default function ClientesListClient() {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
             <h3 className="text-red-800 font-semibold mb-2">Erro ao carregar clientes</h3>
             <p className="text-red-600">{error}</p>
@@ -93,227 +194,120 @@ export default function ClientesListClient() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Clientes</h1>
-          <p className="text-gray-600">
-            Gerenciamento de clientes do sistema Stays
-          </p>
-        </div>
-
-        {/* Filtros e Ações */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div className="flex-1 w-full sm:w-auto">
-              <input
-                type="text"
-                placeholder="Buscar por nome ou email..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={loadClientes}
-                className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
-              >
-                Atualizar
-              </button>
-            </div>
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Clientes</h1>
+            <p className="text-gray-600">
+              Cadastre, edite e acompanhe clientes do CRM Casas de Margarida
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <input
+              type="text"
+              placeholder="Buscar por nome ou email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button
+              onClick={openCreateForm}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Novo Cliente
+            </button>
           </div>
         </div>
 
-        {/* Estatísticas */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg shadow-sm p-6 border border-blue-200">
-            <div className="text-sm font-medium text-blue-700 mb-1">Total de Clientes</div>
-            <div className="text-3xl font-bold text-blue-900">{paginationMeta.total}</div>
+        {feedback && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded">
+            {feedback}
           </div>
-          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg shadow-sm p-6 border border-green-200">
-            <div className="text-sm font-medium text-green-700 mb-1">Usuários</div>
-            <div className="text-3xl font-bold text-green-900">
-              {clientes.filter(c => c.isUsuario).length}
-            </div>
+        )}
+
+        <ClientesFilters
+          filters={filters}
+          onFilterChange={handleFiltersChange}
+          onClear={handleClearFilters}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <p className="text-sm text-gray-500">Total de clientes</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {meta?.total ?? clientes.length}
+            </p>
           </div>
-          <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg shadow-sm p-6 border border-purple-200">
-            <div className="text-sm font-medium text-purple-700 mb-1">Página Atual</div>
-            <div className="text-3xl font-bold text-purple-900">{paginationMeta.page}/{paginationMeta.totalPages}</div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <p className="text-sm text-gray-500">Clientes filtrados</p>
+            <p className="text-3xl font-bold text-gray-900">{filteredClientes.length}</p>
           </div>
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg shadow-sm p-6 border border-orange-200">
-            <div className="text-sm font-medium text-orange-700 mb-1">Resultados da Busca</div>
-            <div className="text-3xl font-bold text-orange-900">{filteredClientes.length}</div>
+          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <p className="text-sm text-gray-500">Página</p>
+            <p className="text-3xl font-bold text-gray-900">
+              {currentPage}/{totalPages}
+            </p>
           </div>
         </div>
 
-        {/* Tabela de Clientes */}
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Nome
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tipo
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Ações
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredClientes.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
-                      {searchTerm ? 'Nenhum cliente encontrado com esse critério' : 'Nenhum cliente cadastrado'}
-                    </td>
-                  </tr>
-                ) : (
-                  filteredClientes.map((cliente) => (
-                    <tr key={cliente.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="h-10 w-10 flex-shrink-0">
-                            <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                              <span className="text-blue-600 font-semibold text-sm">
-                                {cliente.nome.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">{cliente.nome}</div>
-                            <div className="text-sm text-gray-500">ID: {cliente.id.slice(-8)}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{cliente.email || '—'}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                          {cliente.tipo}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {cliente.isUsuario ? (
-                          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                            Usuário
-                          </span>
-                        ) : (
-                          <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                            Convidado
-                          </span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a
-                          href={`/crm/clientes/${cliente.id}`}
-                          className="text-blue-600 hover:text-blue-900 mr-4"
-                        >
-                          Ver detalhes
-                        </a>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+        <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+          <ClientesTable
+            clientes={filteredClientes}
+            onView={(cliente) => router.push(`/crm/clientes/${cliente.id}`)}
+            onEdit={openEditForm}
+            onDelete={handleDelete}
+          />
 
-          {/* Paginação */}
-          <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              {/* Info de registros */}
-              <div className="text-sm text-gray-700">
-                Mostrando <span className="font-semibold">{Math.min((page - 1) * limit + 1, paginationMeta.total)}</span> a{' '}
-                <span className="font-semibold">{Math.min(page * limit, paginationMeta.total)}</span> de{' '}
-                <span className="font-semibold">{paginationMeta.total}</span> clientes
+          {meta && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-gray-600">
+              <div>
+                Mostrando{' '}
+                <span className="font-semibold">
+                  {meta.total === 0 ? 0 : meta.skip + 1}
+                </span>{' '}
+                a{' '}
+                <span className="font-semibold">
+                  {Math.min(meta.skip + (meta.take ?? clientes.length), meta.total)}
+                </span>{' '}
+                de{' '}
+                <span className="font-semibold">{meta.total}</span> clientes
               </div>
-
-              {/* Controles de paginação */}
-              <div className="flex items-center gap-2">
-                {/* Botão primeira página */}
+              <div className="flex flex-wrap items-center gap-2">
                 <button
-                  onClick={() => setPage(1)}
-                  disabled={!paginationMeta.hasPrevPage}
-                  className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  title="Primeira página"
+                  onClick={() => handlePageChange(1)}
+                  disabled={!hasPrevPage}
+                  className="px-3 py-2 border rounded-lg disabled:opacity-50"
                 >
-                  &laquo;
+                  «
                 </button>
-
-                {/* Botão página anterior */}
                 <button
-                  onClick={() => setPage(prev => prev - 1)}
-                  disabled={!paginationMeta.hasPrevPage}
-                  className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={!hasPrevPage}
+                  className="px-3 py-2 border rounded-lg disabled:opacity-50"
                 >
-                  &lsaquo; Anterior
+                  Anterior
                 </button>
-
-                {/* Páginas */}
-                <div className="hidden sm:flex items-center gap-1">
-                  {Array.from({ length: Math.min(5, paginationMeta.totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (paginationMeta.totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (page <= 3) {
-                      pageNum = i + 1;
-                    } else if (page >= paginationMeta.totalPages - 2) {
-                      pageNum = paginationMeta.totalPages - 4 + i;
-                    } else {
-                      pageNum = page - 2 + i;
-                    }
-
-                    return (
-                      <button
-                        key={pageNum}
-                        onClick={() => setPage(pageNum)}
-                        className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-                          page === pageNum
-                            ? 'bg-blue-600 text-white'
-                            : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                {/* Botão próxima página */}
+                <span className="px-3 py-2">
+                  Página {currentPage} de {totalPages}
+                </span>
                 <button
-                  onClick={() => setPage(prev => prev + 1)}
-                  disabled={!paginationMeta.hasNextPage}
-                  className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={!hasNextPage}
+                  className="px-3 py-2 border rounded-lg disabled:opacity-50"
                 >
-                  Próxima &rsaquo;
+                  Próxima
                 </button>
-
-                {/* Botão última página */}
                 <button
-                  onClick={() => setPage(paginationMeta.totalPages)}
-                  disabled={!paginationMeta.hasNextPage}
-                  className="px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  title="Última página"
+                  onClick={() => handlePageChange(totalPages)}
+                  disabled={!hasNextPage}
+                  className="px-3 py-2 border rounded-lg disabled:opacity-50"
                 >
-                  &raquo;
+                  »
                 </button>
-
-                {/* Seletor de itens por página */}
                 <select
-                  value={limit}
-                  onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
-                  className="ml-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={filters.take ?? 10}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value={5}>5 por página</option>
                   <option value={10}>10 por página</option>
@@ -322,8 +316,31 @@ export default function ClientesListClient() {
                 </select>
               </div>
             </div>
-          </div>
+          )}
         </div>
+
+        {showForm && (
+          <div className="bg-white rounded-lg shadow-lg border border-gray-100 p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">
+                {editingCliente ? 'Editar cliente' : 'Novo cliente'}
+              </h2>
+              <button
+                onClick={closeForm}
+                className="text-gray-500 hover:text-gray-800 text-2xl leading-none"
+                aria-label="Fechar formulário"
+              >
+                ×
+              </button>
+            </div>
+            <ClienteForm
+              initialData={initialFormData}
+              onSubmit={handleSubmit}
+              onCancel={closeForm}
+              loading={formLoading}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

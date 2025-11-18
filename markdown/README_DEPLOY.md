@@ -36,7 +36,7 @@ Valor: 46.202.151.92
 Aguarde 15-30 min, depois:
 
 ```bash
-curl -I https://crm.casasdemargarida.com
+curl -I https://crm.casasdemargarida.com.br
 ```
 
 ### 3. Upload Contratos Estáticos
@@ -64,9 +64,9 @@ ssh vps-cdm 'docker service ls | grep crm'
 
 ## 🌐 URLs (após DNS)
 
-- CRM: https://crm.casasdemargarida.com
-- API: https://api-crm.casasdemargarida.com
-- Contratos: https://contratos.casasdemargarida.com
+- CRM: https://crm.casasdemargarida.com.br
+- API: https://api-crm.casasdemargarida.com.br
+- Contratos: https://contratos.casasdemargarida.com.br
 
 ## 📞 Suporte
 

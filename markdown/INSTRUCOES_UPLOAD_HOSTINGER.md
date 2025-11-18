@@ -74,9 +74,9 @@ public_html/
 
 Após upload, acesse:
 
-- **Home**: https://contratos.casasdemargarida.com
-- **Contratos**: https://contratos.casasdemargarida.com/rental-contract
-- **Gestão**: https://contratos.casasdemargarida.com/property-management
+- **Home**: https://contratos.casasdemargarida.com.br
+- **Contratos**: https://contratos.casasdemargarida.com.br/rental-contract
+- **Gestão**: https://contratos.casasdemargarida.com.br/property-management
 
 ## 🔧 Configuração Opcional: .htaccess
 

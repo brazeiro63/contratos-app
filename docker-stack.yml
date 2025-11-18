@@ -12,10 +12,10 @@ services:
       labels:
         - "traefik.enable=true"
         # HTTP Router (para Let's Encrypt challenge)
-        - "traefik.http.routers.crm-frontend-http.rule=Host(`crm.casasdemargarida.com`)"
+        - "traefik.http.routers.crm-frontend-http.rule=Host(`crm.casasdemargarida.com.br`)"
         - "traefik.http.routers.crm-frontend-http.entrypoints=web"
         # HTTPS Router
-        - "traefik.http.routers.crm-frontend.rule=Host(`crm.casasdemargarida.com`)"
+        - "traefik.http.routers.crm-frontend.rule=Host(`crm.casasdemargarida.com.br`)"
         - "traefik.http.routers.crm-frontend.entrypoints=websecure"
         - "traefik.http.routers.crm-frontend.tls=true"
         - "traefik.http.routers.crm-frontend.tls.certresolver=letsencryptresolver"
@@ -23,7 +23,7 @@ services:
         - "traefik.http.services.crm-frontend.loadbalancer.server.port=3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=https://api-crm.casasdemargarida.com/api
+      - NEXT_PUBLIC_API_URL=https://api-crm.casasdemargarida.com.br/api
 
 networks:
   CDMNet:

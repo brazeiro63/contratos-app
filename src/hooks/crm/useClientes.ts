@@ -1,10 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { clientesApi, ClienteStays, ClientesStaysResponse, ClienteFilters } from '@/lib/api/clientes';
+import { clientesApi } from '@/lib/api/clientes';
+import type {
+  Cliente,
+  ClientesResponse,
+  ClienteFilters,
+} from '@/types/crm/cliente';
 
 export function useClientes(initialFilters: ClienteFilters = {}) {
-  const [data, setData] = useState<ClientesStaysResponse | null>(null);
+  const [data, setData] = useState<ClientesResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [filters, setFilters] = useState<ClienteFilters>(initialFilters);
@@ -26,27 +31,19 @@ export function useClientes(initialFilters: ClienteFilters = {}) {
     fetchClientes();
   }, [fetchClientes]);
 
-  const refresh = useCallback(() => {
-    fetchClientes();
-  }, [fetchClientes]);
-
-  const updateFilters = useCallback((newFilters: Partial<ClienteFilters>) => {
-    setFilters((prev) => ({ ...prev, ...newFilters }));
-  }, []);
-
   return {
-    clientes: data?.data || [],
-    pagination: data?.pagination,
+    clientes: data?.data ?? [],
+    meta: data?.meta,
     loading,
     error,
     filters,
-    updateFilters,
-    refresh,
+    setFilters,
+    refresh: fetchClientes,
   };
 }
 
-export function useCliente(id: string | null) {
-  const [cliente, setCliente] = useState<ClienteStays | null>(null);
+export function useCliente(id?: string) {
+  const [cliente, setCliente] = useState<Cliente | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -86,5 +83,3 @@ export function useCliente(id: string | null) {
 
   return { cliente, loading, error };
 }
-
-// Métodos de criação, atualização e exclusão não estão disponíveis na API Stays read-only

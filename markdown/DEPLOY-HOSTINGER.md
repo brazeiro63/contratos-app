@@ -3,7 +3,7 @@
 ## 📋 Pré-requisitos
 
 - Conta Hostinger com hospedagem ativa
-- Domínio `contratos.casasdemargarida.com` configurado
+- Domínio `contratos.casasdemargarida.com.br` configurado
 - Acesso FTP ou File Manager
 
 ## 🔧 Preparar Build
@@ -21,7 +21,7 @@ Isso irá criar a pasta `out/` com todos os arquivos HTML, CSS, JS e assets.
 ### Opção A: Via File Manager (Recomendado)
 
 1. Acesse o **hPanel** da Hostinger
-2. Vá em **Websites** → Selecione o site `contratos.casasdemargarida.com`
+2. Vá em **Websites** → Selecione o site `contratos.casasdemargarida.com.br`
 3. Clique em **File Manager**
 4. Navegue até a pasta `public_html`
 5. **Delete** todos os arquivos antigos (se houver)
@@ -30,7 +30,7 @@ Isso irá criar a pasta `out/` com todos os arquivos HTML, CSS, JS e assets.
 ### Opção B: Via FTP
 
 1. Conecte ao FTP da Hostinger:
-   - Host: `ftp.casasdemargarida.com`
+   - Host: `ftp.casasdemargarida.com.br`
    - Usuário: [seu usuário]
    - Senha: [sua senha]
    - Porta: 21
@@ -42,7 +42,7 @@ Isso irá criar a pasta `out/` com todos os arquivos HTML, CSS, JS e assets.
 ## 🔗 Configurar Domínio
 
 1. No hPanel, vá em **Domains**
-2. Certifique-se que `contratos.casasdemargarida.com` aponta para o site correto
+2. Certifique-se que `contratos.casasdemargarida.com.br` aponta para o site correto
 3. SSL deve estar ativado automaticamente (Let's Encrypt)
 
 ## ⚙️ Configurações Importantes
@@ -65,7 +65,7 @@ RewriteRule . /index.html [L]
 
 ## 🧪 Testar Deploy
 
-1. Acesse: https://contratos.casasdemargarida.com
+1. Acesse: https://contratos.casasdemargarida.com.br
 2. Teste a navegação entre páginas
 3. Teste a geração de PDFs
 4. Verifique se os formulários funcionam
@@ -121,5 +121,5 @@ public_html/
 
 ## 🌐 URLs
 
-- **Frontend:** https://contratos.casasdemargarida.com
+- **Frontend:** https://contratos.casasdemargarida.com.br
 - **API Backend:** https://api-crm.casasdemargarida.com.br/api

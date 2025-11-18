@@ -3,20 +3,20 @@
 ## 📦 Arquivos Prontos
 
 ### 1. CRM Frontend (VPS) - ✅ DEPLOYADO
-- **URL**: https://crm.casasdemargarida.com
+- **URL**: https://crm.casasdemargarida.com.br
 - **Status**: ✅ FUNCIONANDO
 - **SSL**: ✅ Let's Encrypt válido até 13/02/2026
 - **Backend**: ✅ Conectado à API
 
 ### 2. API Backend (VPS) - ✅ FUNCIONANDO
-- **URL**: https://api-crm.casasdemargarida.com
+- **URL**: https://api-crm.casasdemargarida.com.br
 - **Status**: ✅ RODANDO
 - **SSL**: ✅ Let's Encrypt válido
 
 ### 3. Contratos Estáticos (Hostinger) - 📦 PRONTO PARA UPLOAD
 - **Arquivo**: `contratos-static.zip` (1.4 MB)
 - **Localização**: `/home/brazeiro63/contratos-app/contratos-static.zip`
-- **URL Final**: https://contratos.casasdemargarida.com
+- **URL Final**: https://contratos.casasdemargarida.com.br
 - **Instruções**: Ver `INSTRUCOES_UPLOAD_HOSTINGER.md`
 
 ## 🎯 Ação Pendente
@@ -28,7 +28,7 @@
 3. Faça upload de `contratos-static.zip`
 4. Extraia o arquivo
 5. Delete o zip
-6. Teste: https://contratos.casasdemargarida.com
+6. Teste: https://contratos.casasdemargarida.com.br
 
 ## 📁 Estrutura Final
 
@@ -37,14 +37,14 @@ Projeto: Contratos & CRM
 │
 ├── VPS (Docker Swarm + Traefik)
 │   ├── CRM Frontend ✅
-│   │   └── https://crm.casasdemargarida.com
+│   │   └── https://crm.casasdemargarida.com.br
 │   │
 │   └── API Backend ✅
-│       └── https://api-crm.casasdemargarida.com
+│       └── https://api-crm.casasdemargarida.com.br
 │
 └── Hostinger (Web Hosting)
     └── Contratos Estáticos 📦
-        └── https://contratos.casasdemargarida.com
+        └── https://contratos.casasdemargarida.com.br
 ```
 
 ## 🛠️ Comandos de Gerenciamento
@@ -85,9 +85,9 @@ cd out-static && zip -r ../contratos-static-new.zip . && cd ..
 
 | Serviço | URL | Status |
 |---------|-----|--------|
-| CRM | https://crm.casasdemargarida.com | ✅ Online |
-| API | https://api-crm.casasdemargarida.com | ✅ Online |
-| Contratos | https://contratos.casasdemargarida.com | ⏳ Pendente upload |
+| CRM | https://crm.casasdemargarida.com.br | ✅ Online |
+| API | https://api-crm.casasdemargarida.com.br | ✅ Online |
+| Contratos | https://contratos.casasdemargarida.com.br | ⏳ Pendente upload |
 
 ## 🎉 Conclusão
 

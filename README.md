@@ -27,7 +27,7 @@ Acesse: http://localhost:3000
 
 ## 🌐 URLs
 
-- **Frontend:** https://contratos.casasdemargarida.com
+- **Frontend:** https://contratos.casasdemargarida.com.br
 - **API Backend:** https://api-crm.casasdemargarida.com.br/api
 
 ## 📦 Estrutura

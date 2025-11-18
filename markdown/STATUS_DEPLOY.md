@@ -7,7 +7,7 @@
 - **Serviço**: `crm-frontend-stack_crm-frontend`
 - **Imagem**: `crm-frontend:latest`
 - **Porta Interna**: 3000
-- **URL Configurada**: https://crm.casasdemargarida.com
+- **URL Configurada**: https://crm.casasdemargarida.com.br
 - **Rede**: CDMNet
 - **Traefik**: ✅ Configurado com Let's Encrypt
 - **Páginas**:
@@ -21,8 +21,8 @@
 
 ### API Backend
 - **Status**: ✅ RODANDO
-- **Serviço**: `crm-stack_crm-backend`
-- **URL Configurada**: https://api-crm.casasdemargarida.com
+- **Serviço**: `crm-backend-stack_crm-backend`
+- **URL Configurada**: https://api-crm.casasdemargarida.com.br
 - **Porta**: 3001
 
 ### Traefik (Reverse Proxy)
@@ -33,9 +33,9 @@
 ## ⏳ Pendente
 
 ### DNS
-- ⏳ **crm.casasdemargarida.com** → 46.202.151.92
-- ⏳ **api-crm.casasdemargarida.com** → 46.202.151.92
-- ⏳ **contratos.casasdemargarida.com** → 46.202.151.92
+- ⏳ **crm.casasdemargarida.com.br** → 46.202.151.92
+- ⏳ **api-crm.casasdemargarida.com.br** → 46.202.151.92
+- ⏳ **contratos.casasdemargarida.com.br** → 46.202.151.92
 
 **Ação necessária**: Adicionar registros A ou CNAME no painel DNS
 
@@ -93,7 +93,7 @@ ssh vps-cdm 'docker service update crm-frontend-stack_crm-frontend --force'
 
 1. **Configure o DNS** seguindo `CONFIGURACAO_DNS.md`
 2. Aguarde 15-30 minutos para propagação
-3. Acesse https://crm.casasdemargarida.com
+3. Acesse https://crm.casasdemargarida.com.br
 4. Faça upload dos contratos estáticos
 
 ## 📊 Verificar DNS
@@ -101,17 +101,17 @@ ssh vps-cdm 'docker service update crm-frontend-stack_crm-frontend --force'
 Após configurar o DNS, verifique:
 
 ```bash
-nslookup crm.casasdemargarida.com
-nslookup api-crm.casasdemargarida.com
+nslookup crm.casasdemargarida.com.br
+nslookup api-crm.casasdemargarida.com.br
 ```
 
 Deve retornar: `46.202.151.92`
 
 ## ✨ URLs Finais (após DNS)
 
-- **CRM**: https://crm.casasdemargarida.com
-- **API**: https://api-crm.casasdemargarida.com
-- **Contratos**: https://contratos.casasdemargarida.com
+- **CRM**: https://crm.casasdemargarida.com.br
+- **API**: https://api-crm.casasdemargarida.com.br
+- **Contratos**: https://contratos.casasdemargarida.com.br
 
 ---
 
