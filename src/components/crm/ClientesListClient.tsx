@@ -11,6 +11,7 @@ import type {
   ClientesResponse,
   ClienteFilters,
   CreateClienteDto,
+  ClienteSortableField,
 } from '@/types/crm/cliente';
 
 export default function ClientesListClient() {
@@ -18,13 +19,18 @@ export default function ClientesListClient() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [meta, setMeta] = useState<ClientesResponse['meta'] | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filters, setFilters] = useState<ClienteFilters>({ take: 10, skip: 0 });
+  const [filters, setFilters] = useState<ClienteFilters>({
+    take: 10,
+    skip: 0,
+    sort: [{ field: 'dataCadastro', direction: 'desc' }],
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingCliente, setEditingCliente] = useState<Cliente | null>(null);
   const [formLoading, setFormLoading] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [syncLoading, setSyncLoading] = useState(false);
 
   const loadClientes = async () => {
     try {
@@ -43,7 +49,7 @@ export default function ClientesListClient() {
   useEffect(() => {
     loadClientes();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters.skip, filters.take, filters.tag, filters.origem]);
+  }, [filters.skip, filters.take, filters.tag, filters.origem, filters.sort]);
 
   const takeValue = meta?.take ?? filters.take ?? 10;
   const currentPage = meta ? Math.floor(meta.skip / takeValue) + 1 : 1;
@@ -94,6 +100,45 @@ export default function ClientesListClient() {
       origem: undefined,
       skip: 0,
     }));
+  };
+
+  const handleSortChange = (field: ClienteSortableField) => {
+    setFilters((prev) => {
+      const sort = prev.sort ?? [];
+      const existingIndex = sort.findIndex((rule) => rule.field === field);
+      let nextSort: ClienteFilters['sort'];
+
+      if (existingIndex === -1) {
+        nextSort = [{ field, direction: 'asc' as const }, ...sort];
+      } else {
+        const existing = sort[existingIndex];
+        if (existing.direction === 'asc') {
+          nextSort = [{ field, direction: 'desc' as const }, ...sort.filter((_, idx) => idx !== existingIndex)];
+        } else {
+          nextSort = sort.filter((_, idx) => idx !== existingIndex);
+        }
+      }
+
+      return {
+        ...prev,
+        sort: nextSort.length ? nextSort : undefined,
+        skip: 0,
+      };
+    });
+  };
+
+  const handleSync = async () => {
+    setSyncLoading(true);
+    try {
+      await clientesApi.sync();
+      setFeedback('Sincronização iniciada com Stays!');
+      await loadClientes();
+    } catch (err) {
+      setFeedback(err instanceof Error ? err.message : 'Erro ao sincronizar clientes');
+    } finally {
+      setSyncLoading(false);
+      setTimeout(() => setFeedback(null), 5000);
+    }
   };
 
   const openCreateForm = () => {
@@ -193,37 +238,45 @@ export default function ClientesListClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="crm-page">
+      <div className="crm-shell">
+        <div className="crm-header">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Clientes</h1>
-            <p className="text-gray-600">
-              Cadastre, edite e acompanhe clientes do CRM Casas de Margarida
-            </p>
+            <h1>Clientes</h1>
+            <p>Cadastre, edite e acompanhe clientes do CRM Casas de Margarida</p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="crm-header-actions">
             <input
               type="text"
               placeholder="Buscar por nome ou email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            <button
-              onClick={openCreateForm}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Novo Cliente
+            <button onClick={handleSync} disabled={syncLoading}>
+              {syncLoading ? 'Sincronizando...' : 'Sincronizar Stays'}
             </button>
+            <button onClick={openCreateForm}>Novo Cliente</button>
           </div>
         </div>
 
-        {feedback && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded">
-            {feedback}
+        {feedback && <div className="crm-feedback">{feedback}</div>}
+
+        <div className="crm-stats">
+          <div className="crm-stat-card">
+            <span>Total de clientes</span>
+            <strong>{meta?.total ?? clientes.length}</strong>
           </div>
-        )}
+          <div className="crm-stat-card">
+            <span>Clientes filtrados</span>
+            <strong>{filteredClientes.length}</strong>
+          </div>
+          <div className="crm-stat-card">
+            <span>Página</span>
+            <strong>
+              {currentPage}/{totalPages}
+            </strong>
+          </div>
+        </div>
 
         <ClientesFilters
           filters={filters}
@@ -231,88 +284,50 @@ export default function ClientesListClient() {
           onClear={handleClearFilters}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <p className="text-sm text-gray-500">Total de clientes</p>
-            <p className="text-3xl font-bold text-gray-900">
-              {meta?.total ?? clientes.length}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <p className="text-sm text-gray-500">Clientes filtrados</p>
-            <p className="text-3xl font-bold text-gray-900">{filteredClientes.length}</p>
-          </div>
-          <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-            <p className="text-sm text-gray-500">Página</p>
-            <p className="text-3xl font-bold text-gray-900">
-              {currentPage}/{totalPages}
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
+        <div className="crm-table-card">
           <ClientesTable
             clientes={filteredClientes}
             onView={(cliente) => router.push(`/crm/clientes/${cliente.id}`)}
             onEdit={openEditForm}
             onDelete={handleDelete}
+            sortRules={filters.sort}
+            onSort={handleSortChange}
           />
 
           {meta && (
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-gray-600">
-              <div>
+            <div className="crm-pagination">
+              <div className="crm-pagination-info">
                 Mostrando{' '}
-                <span className="font-semibold">
-                  {meta.total === 0 ? 0 : meta.skip + 1}
-                </span>{' '}
-                a{' '}
-                <span className="font-semibold">
+                <span>
+                  {meta.total === 0 ? 0 : meta.skip + 1} -{' '}
                   {Math.min(meta.skip + (meta.take ?? clientes.length), meta.total)}
                 </span>{' '}
-                de{' '}
-                <span className="font-semibold">{meta.total}</span> clientes
+                de <span>{meta.total}</span> clientes
               </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => handlePageChange(1)}
-                  disabled={!hasPrevPage}
-                  className="px-3 py-2 border rounded-lg disabled:opacity-50"
-                >
+              <div className="crm-pagination-controls">
+                <button onClick={() => handlePageChange(1)} disabled={!hasPrevPage}>
                   «
                 </button>
-                <button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={!hasPrevPage}
-                  className="px-3 py-2 border rounded-lg disabled:opacity-50"
-                >
+                <button onClick={() => handlePageChange(currentPage - 1)} disabled={!hasPrevPage}>
                   Anterior
                 </button>
-                <span className="px-3 py-2">
+                <span>
                   Página {currentPage} de {totalPages}
                 </span>
-                <button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={!hasNextPage}
-                  className="px-3 py-2 border rounded-lg disabled:opacity-50"
-                >
+                <button onClick={() => handlePageChange(currentPage + 1)} disabled={!hasNextPage}>
                   Próxima
                 </button>
-                <button
-                  onClick={() => handlePageChange(totalPages)}
-                  disabled={!hasNextPage}
-                  className="px-3 py-2 border rounded-lg disabled:opacity-50"
-                >
+                <button onClick={() => handlePageChange(totalPages)} disabled={!hasNextPage}>
                   »
                 </button>
                 <select
                   value={filters.take ?? 10}
                   onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                  className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value={5}>5 por página</option>
-                  <option value={10}>10 por página</option>
-                  <option value={20}>20 por página</option>
-                  <option value={50}>50 por página</option>
+                  <option value={5}>5</option>
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
                 </select>
               </div>
             </div>
@@ -320,16 +335,10 @@ export default function ClientesListClient() {
         </div>
 
         {showForm && (
-          <div className="bg-white rounded-lg shadow-lg border border-gray-100 p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-semibold text-gray-900">
-                {editingCliente ? 'Editar cliente' : 'Novo cliente'}
-              </h2>
-              <button
-                onClick={closeForm}
-                className="text-gray-500 hover:text-gray-800 text-2xl leading-none"
-                aria-label="Fechar formulário"
-              >
+          <div className="crm-form-card">
+            <div className="crm-form-card__header">
+              <h2>{editingCliente ? 'Editar cliente' : 'Novo cliente'}</h2>
+              <button onClick={closeForm} aria-label="Fechar formulário">
                 ×
               </button>
             </div>
@@ -342,6 +351,179 @@ export default function ClientesListClient() {
           </div>
         )}
       </div>
+      <style jsx>{`
+        .crm-page {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #eef2ff, #f8fafc 60%);
+          padding: 32px 20px 40px;
+        }
+
+        .crm-shell {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .crm-header {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 16px;
+          align-items: center;
+        }
+
+        .crm-header h1 {
+          font-size: 32px;
+          font-weight: 700;
+          color: #0f172a;
+        }
+
+        .crm-header p {
+          color: #475569;
+          margin-top: 6px;
+        }
+
+        .crm-header-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          align-items: center;
+        }
+
+        .crm-header-actions input {
+          padding: 12px 16px;
+          border-radius: 10px;
+          border: 1px solid #c7d2fe;
+          min-width: 260px;
+        }
+
+        .crm-header-actions button {
+          padding: 12px 20px;
+          border-radius: 10px;
+          border: none;
+          background: #4f46e5;
+          color: #fff;
+          font-weight: 600;
+          box-shadow: 0 15px 30px rgba(79, 70, 229, 0.3);
+          cursor: pointer;
+        }
+
+        .crm-feedback {
+          padding: 14px 18px;
+          border-radius: 12px;
+          background: #e0f2fe;
+          color: #075985;
+          border: 1px solid #bae6fd;
+        }
+
+        .crm-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 16px;
+        }
+
+        .crm-stat-card {
+          background: #fff;
+          border-radius: 16px;
+          padding: 18px 20px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+        }
+
+        .crm-stat-card span {
+          font-size: 13px;
+          color: #94a3b8;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        .crm-stat-card strong {
+          display: block;
+          margin-top: 6px;
+          font-size: 28px;
+          color: #0f172a;
+        }
+
+        .crm-table-card {
+          background: #fff;
+          border-radius: 16px;
+          padding: 18px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
+        }
+
+        .crm-pagination {
+          margin-top: 16px;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 16px;
+          align-items: center;
+          color: #475569;
+          font-size: 14px;
+        }
+
+        .crm-pagination-controls button,
+        .crm-pagination-controls select {
+          padding: 8px 12px;
+          border-radius: 8px;
+          border: 1px solid #cbd5f5;
+          background: #fff;
+          cursor: pointer;
+        }
+
+        .crm-pagination-controls button:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+
+        .crm-form-card {
+          background: #fff;
+          border-radius: 16px;
+          padding: 24px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .crm-form-card__header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+
+        .crm-form-card__header h2 {
+          margin: 0;
+          font-size: 20px;
+          color: #0f172a;
+        }
+
+        .crm-form-card__header button {
+          font-size: 28px;
+          line-height: 1;
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          color: #94a3b8;
+        }
+
+        @media (max-width: 640px) {
+          .crm-header-actions {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .crm-header-actions input {
+            min-width: auto;
+          }
+
+          .crm-pagination-controls {
+            flex-wrap: wrap;
+          }
+        }
+      `}</style>
     </div>
   );
 }

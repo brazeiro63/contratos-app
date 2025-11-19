@@ -45,14 +45,12 @@ export default function ClienteForm({
         </div>
 
         <div className="form-group">
-          <label htmlFor="cpf">
-            CPF <span className="required">*</span>
-          </label>
+          <label htmlFor="cpf">CPF</label>
           <input
             id="cpf"
             type="text"
             {...register('cpf', {
-              required: 'CPF é obrigatório',
+              setValueAs: (value: string) => value?.trim() || undefined,
               pattern: {
                 value: /^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$/,
                 message: 'CPF inválido (use XXX.XXX.XXX-XX ou 11 dígitos)',

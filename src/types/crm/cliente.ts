@@ -2,7 +2,7 @@ export interface Cliente {
   id: string;
   staysClientId?: string;
   nome: string;
-  cpf: string;
+  cpf: string | null;
   email: string;
   telefone: string;
   tags: string[];
@@ -34,7 +34,7 @@ export interface Cliente {
 export interface CreateClienteDto {
   staysClientId?: string;
   nome: string;
-  cpf: string;
+  cpf?: string | null;
   email: string;
   telefone: string;
   tags?: string[];
@@ -61,4 +61,23 @@ export interface ClienteFilters {
   take?: number;
   tag?: string;
   origem?: string;
+  sort?: ClienteSortRule[];
+}
+
+export type ClienteSortableField =
+  | 'nome'
+  | 'email'
+  | 'telefone'
+  | 'cpf'
+  | 'score'
+  | 'dataCadastro'
+  | 'ultimaAtualizacao'
+  | 'ultimaReserva'
+  | 'totalReservas'
+  | 'valorTotalGasto'
+  | 'origem';
+
+export interface ClienteSortRule {
+  field: ClienteSortableField;
+  direction: 'asc' | 'desc';
 }

@@ -1,6 +1,7 @@
 export interface Imovel {
   id: string;
   staysImovelId?: string;
+  nome: string;
   endereco: string;
   tipo: string;
   capacidade: number;

@@ -44,10 +44,12 @@ export default function ImoveisListClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-10 w-10 rounded-full border-b-2 border-blue-600 mx-auto" />
-          <p className="mt-4 text-gray-600">Carregando imóveis...</p>
+      <div className="crm-page">
+        <div className="crm-shell">
+          <div className="crm-table-card text-center py-16">
+            <div className="animate-spin h-10 w-10 rounded-full border-b-2 border-blue-600 mx-auto" />
+            <p className="mt-4 text-gray-600">Carregando imóveis...</p>
+          </div>
         </div>
       </div>
     );
@@ -55,16 +57,13 @@ export default function ImoveisListClient() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-4xl mx-auto bg-red-50 border border-red-200 rounded-lg p-6">
-          <h3 className="text-red-700 font-semibold mb-2">Erro</h3>
-          <p className="text-red-600">{error}</p>
-          <button
-            onClick={loadImoveis}
-            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-          >
-            Tentar novamente
-          </button>
+      <div className="crm-page">
+        <div className="crm-shell">
+          <div className="crm-detail-card crm-detail-card--error">
+            <h3>Erro ao carregar imóveis</h3>
+            <p>{error}</p>
+            <button onClick={loadImoveis}>Tentar novamente</button>
+          </div>
         </div>
       </div>
     );
@@ -74,72 +73,71 @@ export default function ImoveisListClient() {
   const totalPages = Math.max(1, Math.ceil(total / take));
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="crm-page">
+      <div className="crm-shell">
+        <div className="crm-header">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Imóveis</h1>
-            <p className="text-gray-600">
-              Inventário dos imóveis cadastrados no CRM
-            </p>
+            <h1>Imóveis</h1>
+            <p>Inventário dos imóveis cadastrados no CRM</p>
           </div>
           <input
             type="text"
             placeholder="Buscar por endereço ou tipo..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+        <div className="crm-stats">
+          <div className="crm-stat-card">
+            <span>Total de imóveis</span>
+            <strong>{total}</strong>
+          </div>
+          <div className="crm-stat-card">
+            <span>Filtrados</span>
+            <strong>{filtered.length}</strong>
+          </div>
+          <div className="crm-stat-card">
+            <span>Página</span>
+            <strong>{currentPage}/{totalPages}</strong>
+          </div>
+        </div>
+
+        <div className="crm-table-card">
+          <div className="crm-table-wrapper">
+            <table className="crm-table">
+              <thead>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Endereço
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Tipo
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Capacidade
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Última Vistoria
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Próxima Manutenção
-                  </th>
+                  <th>Unidade</th>
+                  <th>Tipo</th>
+                  <th>Capacidade</th>
+                  <th>Última Vistoria</th>
+                  <th>Próxima Manutenção</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody>
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                    <td colSpan={5} className="crm-empty">
                       Nenhum imóvel encontrado
                     </td>
                   </tr>
                 ) : (
                   filtered.map((imovel) => (
-                    <tr key={imovel.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {imovel.endereco}
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          ID: {imovel.staysImovelId ?? '—'}
-                        </div>
+                    <tr key={imovel.id}>
+                      <td>
+                        <div className="crm-imovel-nome">{imovel.nome}</div>
+                        <div className="crm-imovel-meta">{imovel.endereco}</div>
+                        <div className="crm-imovel-meta">ID: {imovel.staysImovelId ?? '—'}</div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{imovel.tipo}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{imovel.capacidade}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td>{imovel.tipo}</td>
+                      <td>{imovel.capacidade}</td>
+                      <td>
                         {imovel.ultimaVistoria
                           ? new Date(imovel.ultimaVistoria).toLocaleDateString('pt-BR')
                           : '—'}
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-900">
+                      <td>
                         {imovel.proximaManutencao
                           ? new Date(imovel.proximaManutencao).toLocaleDateString('pt-BR')
                           : '—'}
@@ -151,7 +149,7 @@ export default function ImoveisListClient() {
             </table>
           </div>
 
-          <div className="bg-gray-50 px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-gray-600">
+          <div className="crm-pagination">
             <div>
               Mostrando{' '}
               <span className="font-semibold">
@@ -164,11 +162,10 @@ export default function ImoveisListClient() {
               de{' '}
               <span className="font-semibold">{total}</span> imóveis
             </div>
-            <div className="flex items-center gap-2">
+            <div className="crm-pagination-controls">
               <button
                 onClick={() => setSkip(Math.max(0, skip - take))}
                 disabled={skip === 0}
-                className="px-3 py-2 border rounded-lg disabled:opacity-50"
               >
                 Anterior
               </button>
@@ -178,7 +175,6 @@ export default function ImoveisListClient() {
               <button
                 onClick={() => setSkip(skip + take)}
                 disabled={!hasMore}
-                className="px-3 py-2 border rounded-lg disabled:opacity-50"
               >
                 Próxima
               </button>
@@ -188,7 +184,6 @@ export default function ImoveisListClient() {
                   setTake(Number(e.target.value));
                   setSkip(0);
                 }}
-                className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value={5}>5</option>
                 <option value={10}>10</option>
@@ -199,6 +194,178 @@ export default function ImoveisListClient() {
           </div>
         </div>
       </div>
+      <style jsx>{`
+        .crm-page {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #eef2ff, #f8fafc 70%);
+          padding: 32px 20px 40px;
+        }
+
+        .crm-shell {
+          max-width: 1100px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .crm-header {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 16px;
+          align-items: center;
+        }
+
+        .crm-header h1 {
+          font-size: 32px;
+          font-weight: 700;
+          color: #0f172a;
+        }
+
+        .crm-header p {
+          color: #475569;
+          margin-top: 6px;
+        }
+
+        .crm-header input {
+          padding: 12px 16px;
+          border-radius: 10px;
+          border: 1px solid #c7d2fe;
+          min-width: 260px;
+        }
+
+        .crm-stats {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 16px;
+        }
+
+        .crm-stat-card {
+          background: #fff;
+          border-radius: 16px;
+          padding: 18px 20px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+        }
+
+        .crm-stat-card span {
+          font-size: 13px;
+          color: #94a3b8;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+        }
+
+        .crm-stat-card strong {
+          display: block;
+          margin-top: 6px;
+          font-size: 28px;
+          color: #0f172a;
+        }
+
+        .crm-table-card {
+          background: #fff;
+          border-radius: 16px;
+          padding: 0;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 12px 35px rgba(15, 23, 42, 0.06);
+          overflow: hidden;
+        }
+
+        .crm-table-wrapper {
+          width: 100%;
+          overflow-x: auto;
+        }
+
+        .crm-table {
+          width: 100%;
+          min-width: 720px;
+          border-collapse: collapse;
+        }
+
+        .crm-table thead th {
+          padding: 14px;
+          background: #f8fafc;
+          text-align: left;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          color: #475569;
+          letter-spacing: 0.05em;
+        }
+
+        .crm-table tbody td {
+          padding: 12px 14px;
+          border-bottom: 1px solid #f1f5f9;
+          font-size: 14px;
+          color: #0f172a;
+        }
+
+        .crm-table tbody tr:last-child td {
+          border-bottom: none;
+        }
+
+        .crm-imovel-nome {
+          font-weight: 600;
+          color: #0f172a;
+        }
+
+        .crm-imovel-meta {
+          font-size: 12px;
+          color: #94a3b8;
+        }
+
+        .crm-empty {
+          text-align: center;
+          padding: 32px;
+          color: #94a3b8;
+        }
+
+        .crm-pagination {
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: space-between;
+          gap: 16px;
+          align-items: center;
+          padding: 16px 20px;
+          border-top: 1px solid #e2e8f0;
+          background: #f8fafc;
+          font-size: 14px;
+          color: #475569;
+        }
+
+        .crm-pagination-controls {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          align-items: center;
+        }
+
+        .crm-pagination-controls button,
+        .crm-pagination-controls select {
+          padding: 8px 12px;
+          border-radius: 8px;
+          border: 1px solid #cbd5f5;
+          background: #fff;
+          cursor: pointer;
+        }
+
+        .crm-pagination-controls button:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+
+        @media (max-width: 640px) {
+          .crm-header {
+            flex-direction: column;
+            align-items: flex-start;
+          }
+          .crm-header input {
+            width: 100%;
+            min-width: unset;
+          }
+        }
+      `}</style>
     </div>
   );
 }

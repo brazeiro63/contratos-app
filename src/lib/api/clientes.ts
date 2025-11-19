@@ -5,6 +5,7 @@ import type {
   ClienteFilters,
   CreateClienteDto,
   UpdateClienteDto,
+  ClienteSortRule,
 } from '@/types/crm/cliente';
 
 const CRM_ENDPOINT = '/clientes';
@@ -23,6 +24,11 @@ const buildQuery = (filters: ClienteFilters = {}) => {
   }
   if (filters.origem) {
     params.append('origem', filters.origem);
+  }
+  if (filters.sort?.length) {
+    filters.sort.forEach((rule) => {
+      params.append('sort', `${rule.field}:${rule.direction}`);
+    });
   }
 
   return params.toString();
@@ -50,5 +56,9 @@ export const clientesApi = {
 
   delete: async (id: string): Promise<void> => {
     return apiClient.delete<void>(`${CRM_ENDPOINT}/${id}`);
+  },
+
+  sync: async (limit = 100): Promise<{ message?: string }> => {
+    return apiClient.post<{ message?: string }>(`${CRM_ENDPOINT}/sync`, { limit });
   },
 };
