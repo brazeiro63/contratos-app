@@ -534,19 +534,22 @@ body {
 }
 
 /* CRM form styles */
-.cliente-form {
+.cliente-form,
+.imovel-form {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.cliente-form .form-grid {
+.cliente-form .form-grid,
+.imovel-form .form-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
 }
 
-.cliente-form .form-group label {
+.cliente-form .form-group label,
+.imovel-form .form-group label {
   display: block;
   font-size: 12px;
   font-weight: 600;
@@ -556,7 +559,10 @@ body {
 }
 
 .cliente-form .form-group input,
-.cliente-form .form-group textarea {
+.cliente-form .form-group textarea,
+.imovel-form .form-group input,
+.imovel-form .form-group textarea,
+.imovel-form .form-group select {
   width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
@@ -566,19 +572,27 @@ body {
   background: #fff;
 }
 
-.cliente-form .form-group textarea {
+.cliente-form .form-group textarea,
+.imovel-form .form-group textarea {
   min-height: 120px;
   resize: vertical;
 }
 
-.cliente-form .form-actions {
+.cliente-form .form-group.full-width,
+.imovel-form .form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.cliente-form .form-actions,
+.imovel-form .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
   margin-top: 8px;
 }
 
-.cliente-form .error {
+.cliente-form .error,
+.imovel-form .error {
   display: block;
   font-size: 12px;
   color: #dc2626;

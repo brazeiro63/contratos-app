@@ -1,5 +1,10 @@
 import { apiClient } from './client';
-import type { ImoveisResponse } from '@/types/crm/imovel';
+import type {
+  CreateImovelDto,
+  ImoveisResponse,
+  Imovel,
+  UpdateImovelDto,
+} from '@/types/crm/imovel';
 
 export interface ImoveisFilters {
   skip?: number;
@@ -25,5 +30,17 @@ export const imoveisApi = {
     return apiClient.get<ImoveisResponse>(
       `${IMOVEIS_ENDPOINT}${query ? `?${query}` : ''}`,
     );
+  },
+  create: async (data: CreateImovelDto) => {
+    return apiClient.post<Imovel>(IMOVEIS_ENDPOINT, data);
+  },
+  update: async (id: string, data: UpdateImovelDto) => {
+    return apiClient.patch<Imovel>(`${IMOVEIS_ENDPOINT}/${id}`, data);
+  },
+  delete: async (id: string) => {
+    return apiClient.delete<void>(`${IMOVEIS_ENDPOINT}/${id}`);
+  },
+  sync: async (limit = 100) => {
+    return apiClient.post(`${IMOVEIS_ENDPOINT}/sync`, { limit });
   },
 };
