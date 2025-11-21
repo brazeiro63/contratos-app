@@ -24,6 +24,7 @@ export interface Imovel {
   ultimaVistoria?: string | null;
   proximaManutencao?: string | null;
   dataCadastro: string;
+  observacoes?: string | null;
 }
 
 export interface CreateImovelDto {

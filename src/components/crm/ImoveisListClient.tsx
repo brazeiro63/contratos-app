@@ -182,10 +182,12 @@ export default function ImoveisListClient() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            <button onClick={handleSync} disabled={syncLoading}>
+            <button type="button" onClick={handleSync} disabled={syncLoading}>
               {syncLoading ? 'Sincronizando...' : 'Sincronizar Stays'}
             </button>
-            <button onClick={openCreateForm}>Nova Propriedade</button>
+            <button type="button" onClick={openCreateForm}>
+              Nova Propriedade
+            </button>
           </div>
         </div>
 
@@ -280,11 +282,23 @@ export default function ImoveisListClient() {
                           </div>
                         ) : null}
                       </td>
-                      <td>
-                        <div className="crm-actions">
-                          <button onClick={() => openEditForm(imovel)}>Editar</button>
-                          <button className="danger" onClick={() => handleDelete(imovel)}>
-                            Excluir
+                      <td className="crm-actions-cell">
+                        <div className="action-buttons">
+                          <button
+                            type="button"
+                            className="btn-icon"
+                            title="Editar"
+                            onClick={() => openEditForm(imovel)}
+                          >
+                            ✏️
+                          </button>
+                          <button
+                            type="button"
+                            className="btn-icon btn-danger"
+                            title="Excluir"
+                            onClick={() => handleDelete(imovel)}
+                          >
+                            🗑️
                           </button>
                         </div>
                       </td>
@@ -563,22 +577,39 @@ export default function ImoveisListClient() {
           color: #475569;
         }
 
-        .crm-actions {
+        .action-buttons {
           display: flex;
-          flex-direction: column;
           gap: 8px;
+          align-items: center;
         }
 
-        .crm-actions button {
-          padding: 8px 12px;
-          border-radius: 8px;
-          border: 1px solid #cbd5f5;
-          background: #fff;
+        .btn-icon {
+          width: 38px;
+          height: 38px;
+          border-radius: 12px;
+          border: 1px solid #e2e8f0;
+          background: #f8fafc;
+          color: #0f172a;
+          font-size: 16px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           cursor: pointer;
-          font-weight: 600;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
         }
 
-        .crm-actions button.danger {
+        .btn-icon:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
+        }
+
+        .btn-icon:focus-visible {
+          outline: 2px solid #4f46e5;
+          outline-offset: 2px;
+        }
+
+        .btn-icon.btn-danger {
+          background: #fee2e2;
           border-color: #fecaca;
           color: #b91c1c;
         }
