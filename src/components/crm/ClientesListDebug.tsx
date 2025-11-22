@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 
 export default function ClientesListDebug() {
   const [status, setStatus] = useState('Iniciando...');
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<unknown>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +36,7 @@ export default function ClientesListDebug() {
           <p className="text-lg">{status}</p>
         </div>
 
-        {data && (
+        {data != null && (
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-semibold mb-2">Dados:</h2>
             <pre className="bg-gray-100 p-4 rounded overflow-auto text-sm">

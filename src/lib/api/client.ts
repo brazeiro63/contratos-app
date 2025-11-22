@@ -49,13 +49,13 @@ async function fetchApi<T>(
 export const apiClient = {
   get: <T>(endpoint: string) => fetchApi<T>(endpoint, { method: 'GET' }),
 
-  post: <T>(endpoint: string, data: any) =>
+  post: <T>(endpoint: string, data: unknown) =>
     fetchApi<T>(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
     }),
 
-  patch: <T>(endpoint: string, data: any) =>
+  patch: <T>(endpoint: string, data: unknown) =>
     fetchApi<T>(endpoint, {
       method: 'PATCH',
       body: JSON.stringify(data),
