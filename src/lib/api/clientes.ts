@@ -5,7 +5,6 @@ import type {
   ClienteFilters,
   CreateClienteDto,
   UpdateClienteDto,
-  ClienteSortRule,
 } from '@/types/crm/cliente';
 
 const CRM_ENDPOINT = '/clientes';

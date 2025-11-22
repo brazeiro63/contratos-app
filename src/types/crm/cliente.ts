@@ -7,7 +7,7 @@ export interface Cliente {
   telefone: string;
   tags: string[];
   score: number;
-  preferencias?: any;
+  preferencias?: Record<string, unknown>;
   observacoes?: string;
   origem?: string;
   dataCadastro: string;
@@ -39,12 +39,12 @@ export interface CreateClienteDto {
   telefone: string;
   tags?: string[];
   score?: number;
-  preferencias?: any;
+  preferencias?: Record<string, unknown>;
   observacoes?: string;
   origem?: string;
 }
 
-export interface UpdateClienteDto extends Partial<CreateClienteDto> {}
+export type UpdateClienteDto = Partial<CreateClienteDto>;
 
 export interface ClientesResponse {
   data: Cliente[];
