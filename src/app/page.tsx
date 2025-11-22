@@ -16,6 +16,24 @@ export default function Home() {
         <p className="description">Selecione o tipo de contrato que deseja gerar:</p>
       </header>
 
+      <section className="home-crm-shortcuts">
+        <div>
+          <p className="shortcut-title">CRM Operação</p>
+          <p className="shortcut-subtitle">Acesse rapidamente as telas do CRM</p>
+        </div>
+        <div className="shortcut-actions">
+          <button type="button" onClick={() => router.push('/crm/reservas')}>
+            📋 Pipeline de Reservas
+          </button>
+          <button type="button" onClick={() => router.push('/crm/clientes')}>
+            👥 Clientes
+          </button>
+          <button type="button" onClick={() => router.push('/crm/imoveis')}>
+            🏠 Imóveis
+          </button>
+        </div>
+      </section>
+
       <div className="contract-grid">
         {CONTRACT_TYPES.map(contract => (
           <ContractCard

@@ -460,6 +460,61 @@ body {
   margin-bottom: 10px;
 }
 
+.home-crm-shortcuts {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: 16px;
+  padding: 18px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 10px 30px rgba(30, 41, 59, 0.35);
+  margin-bottom: 32px;
+}
+
+.home-crm-shortcuts .shortcut-title {
+  font-weight: 700;
+  font-size: 16px;
+  margin: 0;
+}
+
+.home-crm-shortcuts .shortcut-subtitle {
+  margin: 4px 0 0;
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.home-crm-shortcuts .shortcut-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.home-crm-shortcuts button {
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.home-crm-shortcuts button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(148, 163, 184, 0.35);
+  background: #f1f5f9;
+}
+
+@media (max-width: 640px) {
+  .home-crm-shortcuts {
+    align-items: flex-start;
+  }
+}
+
 .contract-card .coming-soon {
   display: inline-block;
   background-color: #ffd700;
