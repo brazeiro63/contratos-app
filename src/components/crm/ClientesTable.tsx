@@ -116,10 +116,18 @@ export default function ClientesTable({
                 </div>
               </td>
               <td className="crm-contact-cell">
-                <div className="crm-contact-email" title={cliente.email}>
-                  {cliente.email}
+                <div className="crm-contact-email" title={cliente.email || cliente.emails?.[0]}>
+                  {cliente.email || cliente.emails?.[0] || '—'}
+                  {cliente.emails && cliente.emails.length > 1 && (
+                    <span className="crm-chip crm-chip-muted">+{cliente.emails.length - 1}</span>
+                  )}
                 </div>
-                <div className="crm-contact-phone">{formatTelefone(cliente.telefone)}</div>
+                <div className="crm-contact-phone">
+                  {formatTelefone(cliente.telefone || cliente.telefones?.[0] || undefined)}
+                  {cliente.telefones && cliente.telefones.length > 1 && (
+                    <span className="crm-chip crm-chip-muted">+{cliente.telefones.length - 1}</span>
+                  )}
+                </div>
               </td>
               <td className="crm-score-cell">
                 <span className={`crm-score crm-score--${getScoreVariant(cliente.score)}`}>

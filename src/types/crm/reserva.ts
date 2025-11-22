@@ -16,8 +16,11 @@ export type BookingSource = 'AIRBNB' | 'BOOKING' | 'DIRETO' | 'EXPEDIA' | 'OUTRO
 export interface ReservaClienteInfo {
   id: string;
   nome: string;
-  email: string;
-  telefone: string;
+  email?: string | null;
+  telefone?: string | null;
+  emails?: string[];
+  telefones?: string[];
+  documentos?: Array<{ tipo?: string; numero?: string }>;
   origem?: string | null;
   tags: string[];
 }

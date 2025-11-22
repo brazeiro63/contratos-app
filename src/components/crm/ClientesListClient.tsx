@@ -61,10 +61,12 @@ export default function ClientesListClient() {
     if (!searchTerm) {
       return clientes;
     }
+    const term = searchTerm.toLowerCase();
     return clientes.filter(
       (cliente) =>
-        cliente.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        cliente.email.toLowerCase().includes(searchTerm.toLowerCase())
+        cliente.nome.toLowerCase().includes(term) ||
+        (cliente.email && cliente.email.toLowerCase().includes(term)) ||
+        (cliente.emails && cliente.emails.some((mail) => mail.toLowerCase().includes(term))),
     );
   }, [clientes, searchTerm]);
 
@@ -197,8 +199,11 @@ export default function ClientesListClient() {
         staysClientId: editingCliente.staysClientId,
         nome: editingCliente.nome,
         cpf: editingCliente.cpf,
-        email: editingCliente.email,
-        telefone: editingCliente.telefone,
+        email: editingCliente.email ?? undefined,
+        emails: editingCliente.emails,
+        telefone: editingCliente.telefone ?? undefined,
+        telefones: editingCliente.telefones,
+        documentos: editingCliente.documentos,
         tags: editingCliente.tags,
         score: editingCliente.score,
         preferencias: editingCliente.preferencias,
@@ -335,19 +340,22 @@ export default function ClientesListClient() {
         </div>
 
         {showForm && (
-          <div className="crm-form-card">
-            <div className="crm-form-card__header">
-              <h2>{editingCliente ? 'Editar cliente' : 'Novo cliente'}</h2>
-              <button onClick={closeForm} aria-label="Fechar formulário">
-                ×
-              </button>
+          <div className="crm-modal">
+            <div className="crm-modal__backdrop" onClick={closeForm} />
+            <div className="crm-modal__content">
+              <div className="crm-form-card__header">
+                <h2>{editingCliente ? 'Editar cliente' : 'Novo cliente'}</h2>
+                <button onClick={closeForm} aria-label="Fechar formulário">
+                  ×
+                </button>
+              </div>
+              <ClienteForm
+                initialData={initialFormData}
+                onSubmit={handleSubmit}
+                onCancel={closeForm}
+                loading={formLoading}
+              />
             </div>
-            <ClienteForm
-              initialData={initialFormData}
-              onSubmit={handleSubmit}
-              onCancel={closeForm}
-              loading={formLoading}
-            />
           </div>
         )}
       </div>
@@ -507,6 +515,35 @@ export default function ClientesListClient() {
           border: none;
           cursor: pointer;
           color: #94a3b8;
+        }
+
+        .crm-modal {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          justify-content: center;
+          align-items: flex-start;
+          padding: 40px 16px;
+          z-index: 50;
+        }
+
+        .crm-modal__backdrop {
+          position: absolute;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.55);
+          backdrop-filter: blur(2px);
+        }
+
+        .crm-modal__content {
+          position: relative;
+          width: min(900px, 100%);
+          background: #fff;
+          border-radius: 16px;
+          border: 1px solid #e2e8f0;
+          box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+          padding: 20px;
+          max-height: calc(100vh - 80px);
+          overflow-y: auto;
         }
 
         @media (max-width: 640px) {

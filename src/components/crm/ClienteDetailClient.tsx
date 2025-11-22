@@ -107,10 +107,46 @@ export default function ClienteDetailClient() {
           <div className="crm-info-card">
             <h3>Contatos</h3>
             <dl>
-              <div><dt>Email</dt><dd>{cliente.email}</dd></div>
-              <div><dt>Telefone</dt><dd>{cliente.telefone}</dd></div>
+              <div>
+                <dt>Email</dt>
+                <dd>
+                  {cliente.email || cliente.emails?.[0] || 'Não informado'}
+                  {cliente.emails && cliente.emails.length > 1 && (
+                    <div className="crm-chip-group mt-2">
+                      {cliente.emails.slice(1).map((mail, idx) => (
+                        <span key={idx} className="crm-chip">{mail}</span>
+                      ))}
+                    </div>
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt>Telefone</dt>
+                <dd>
+                  {cliente.telefone || cliente.telefones?.[0] || 'Não informado'}
+                  {cliente.telefones && cliente.telefones.length > 1 && (
+                    <div className="crm-chip-group mt-2">
+                      {cliente.telefones.slice(1).map((phone, idx) => (
+                        <span key={idx} className="crm-chip">{phone}</span>
+                      ))}
+                    </div>
+                  )}
+                </dd>
+              </div>
               <div><dt>CPF</dt><dd>{cliente.cpf ?? 'Não informado'}</dd></div>
               <div><dt>Origem</dt><dd>{cliente.origem || 'Não informado'}</dd></div>
+              {cliente.documentos && cliente.documentos.length > 0 && (
+                <div>
+                  <dt>Documentos</dt>
+                  <dd className="crm-chip-group">
+                    {cliente.documentos.map((doc, idx) => (
+                      <span key={idx} className="crm-chip">
+                        {doc.tipo || 'DOC'}: {doc.numero}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+              )}
             </dl>
           </div>
 

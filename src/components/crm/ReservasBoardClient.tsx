@@ -35,6 +35,8 @@ const STATUS_CONFIG: Array<{
   { value: 'CANCELADO', label: 'Cancelados', description: 'Reservas perdidas' },
 ];
 
+const BOTTOM_STATUSES: ReservaStatus[] = ['CONCLUIDO', 'CANCELADO'];
+
 const STATUS_LABELS = STATUS_CONFIG.reduce<Record<ReservaStatus, string>>(
   (acc, curr) => {
     acc[curr.value] = curr.label;
@@ -137,7 +139,7 @@ export default function ReservasBoardClient() {
     );
   }, [reservas, search]);
 
-  const groupedByStatus = useMemo(() => {
+  const groupedMap = useMemo(() => {
     const map = new Map<ReservaStatus, Reserva[]>();
     (Object.keys(STATUS_LABELS) as ReservaStatus[]).forEach((status) => {
       map.set(status, []);
@@ -145,12 +147,30 @@ export default function ReservasBoardClient() {
     filteredReservas.forEach((reserva) => {
       map.get(reserva.status)?.push(reserva);
     });
-
-    return STATUS_CONFIG.map((stage) => ({
-      ...stage,
-      reservas: map.get(stage.value) ?? [],
-    }));
+    return map;
   }, [filteredReservas]);
+
+  const pipelineStages = useMemo(
+    () =>
+      STATUS_CONFIG.filter((stage) => !BOTTOM_STATUSES.includes(stage.value)).map(
+        (stage) => ({
+          ...stage,
+          reservas: groupedMap.get(stage.value) ?? [],
+        }),
+      ),
+    [groupedMap],
+  );
+
+  const bottomStages = useMemo(
+    () =>
+      STATUS_CONFIG.filter((stage) => BOTTOM_STATUSES.includes(stage.value)).map(
+        (stage) => ({
+          ...stage,
+          reservas: groupedMap.get(stage.value) ?? [],
+        }),
+      ),
+    [groupedMap],
+  );
 
   const stats = useMemo(() => {
     const total = meta?.total ?? reservas.length;
@@ -284,7 +304,7 @@ export default function ReservasBoardClient() {
         </div>
 
         <div className="pipeline-grid">
-          {groupedByStatus.map((stage) => (
+          {pipelineStages.map((stage) => (
             <div key={stage.value} className="pipeline-column">
               <div className="pipeline-column__header">
                 <div>
@@ -302,6 +322,44 @@ export default function ReservasBoardClient() {
                   ))
                 )}
               </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="pipeline-bottom">
+          {bottomStages.map((stage) => (
+            <div key={stage.value} className="pipeline-bottom__card">
+              <div className="pipeline-bottom__header">
+                <div>
+                  <h3>{stage.label}</h3>
+                  <p>{stage.description}</p>
+                </div>
+                <span className="pipeline-count">{stage.reservas.length}</span>
+              </div>
+              {stage.reservas.length === 0 ? (
+                <div className="pipeline-empty">Sem reservas neste estágio</div>
+              ) : (
+                <ul className="pipeline-list">
+                  {stage.reservas.map((reserva) => (
+                    <li key={reserva.id}>
+                      <div>
+                        <strong>{reserva.cliente.nome}</strong>
+                        <span>{reserva.imovel.nome}</span>
+                      </div>
+                      <div className="pipeline-list__meta">
+                        <span>
+                          {new Date(reserva.checkIn).toLocaleDateString('pt-BR')} →{' '}
+                          {new Date(reserva.checkOut).toLocaleDateString('pt-BR')}
+                        </span>
+                        {reserva.valorTotal != null && (
+                          <span>{currencyFormatter.format(Number(reserva.valorTotal))}</span>
+                        )}
+                        <span>{ORIGEM_LABELS[reserva.origem]}</span>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           ))}
         </div>
@@ -437,6 +495,83 @@ export default function ReservasBoardClient() {
           color: #94a3b8;
         }
 
+        .pipeline-bottom {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 16px;
+        }
+
+        .pipeline-bottom__card {
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          background: #fff;
+          padding: 12px 14px 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .pipeline-bottom__header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+
+        .pipeline-bottom__header h3 {
+          margin: 0;
+          font-size: 15px;
+          font-weight: 700;
+          color: #0f172a;
+        }
+
+        .pipeline-bottom__header p {
+          margin: 2px 0 0;
+          color: #64748b;
+          font-size: 12px;
+        }
+
+        .pipeline-list {
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .pipeline-list li {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 10px 12px;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          background: #f8fafc;
+        }
+
+        .pipeline-list strong {
+          display: block;
+          color: #0f172a;
+          font-size: 14px;
+        }
+
+        .pipeline-list span {
+          display: block;
+          color: #64748b;
+          font-size: 12px;
+        }
+
+        .pipeline-list__meta {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 4px;
+          min-width: 160px;
+        }
+
         .crm-feedback {
           padding: 14px 18px;
           border-radius: 12px;
@@ -542,6 +677,12 @@ function FilterInput({
 }
 
 function ReservaCard({ reserva }: { reserva: Reserva }) {
+  const primaryEmail =
+    reserva.cliente.email ??
+    (reserva.cliente.emails && reserva.cliente.emails.length > 0
+      ? reserva.cliente.emails[0]
+      : 'Sem e-mail');
+
   return (
     <div className="reserva-card">
       <div className="reserva-card__header">
@@ -571,7 +712,7 @@ function ReservaCard({ reserva }: { reserva: Reserva }) {
       </div>
       <div className="reserva-card__section">
         <p className="reserva-title">{reserva.cliente.nome}</p>
-        <small>{reserva.cliente.email}</small>
+        <small>{primaryEmail}</small>
       </div>
       <div className="reserva-card__meta">
         <span>{reserva.totalHospedes} hóspedes</span>

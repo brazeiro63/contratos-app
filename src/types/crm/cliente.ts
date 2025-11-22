@@ -3,8 +3,11 @@ export interface Cliente {
   staysClientId?: string;
   nome: string;
   cpf: string | null;
-  email: string;
-  telefone: string;
+  email?: string | null;
+  emails?: string[];
+  telefone?: string | null;
+  telefones?: string[];
+  documentos?: Array<{ tipo?: string; numero?: string }>;
   tags: string[];
   score: number;
   preferencias?: Record<string, unknown>;
@@ -35,8 +38,11 @@ export interface CreateClienteDto {
   staysClientId?: string;
   nome: string;
   cpf?: string | null;
-  email: string;
-  telefone: string;
+  email?: string;
+  emails?: string[];
+  telefone?: string;
+  telefones?: string[];
+  documentos?: Array<{ tipo?: string; numero?: string }>;
   tags?: string[];
   score?: number;
   preferencias?: Record<string, unknown>;
