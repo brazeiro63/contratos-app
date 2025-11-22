@@ -32,17 +32,18 @@ export default function ClienteForm({
     },
   });
 
+  // useFieldArray não infere string[] como FieldArrayPath; coerção explícita
   const emailsArray = useFieldArray({
-    control,
-    name: 'emails',
+    control: control as any,
+    name: 'emails' as any,
   });
 
   const telefonesArray = useFieldArray({
-    control,
-    name: 'telefones',
+    control: control as any,
+    name: 'telefones' as any,
   });
 
-  const documentosArray = useFieldArray({
+  const documentosArray = useFieldArray<CreateClienteDto, 'documentos'>({
     control,
     name: 'documentos',
   });
